@@ -1,6 +1,9 @@
 import { connect } from "react-redux";
 import { getOrderBook } from "../../redux/orderBook/orderBookSelectors";
-import { openWebSocketThunk } from "../../redux/orderBook/orderBookThunks";
+import {
+  openWebSocketThunk,
+  sortByGroupSelectThunk,
+} from "../../redux/orderBook/orderBookThunks";
 import HomeScreen from "./HomeScreen";
 
 const mapStateToProps = (state: IState) => {
@@ -11,5 +14,6 @@ const mapStateToProps = (state: IState) => {
 
 const mapDispatchToProps = {
   openWebSocket: openWebSocketThunk,
+  sortByGroupSelect: sortByGroupSelectThunk,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

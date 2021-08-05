@@ -5,7 +5,7 @@ import debounce from "lodash.debounce";
 let ws: WebSocket;
 
 export const openWebSocketThunk = () => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: () => IState) => {
     const wsURL = "wss://www.cryptofacilities.com/ws/v1";
     ws = new WebSocket(wsURL);
 
@@ -21,16 +21,7 @@ export const openWebSocketThunk = () => {
       console.log("on error");
     };
     ws.onmessage = function (event: MessageEvent<string>) {
-      console.log("on message");
-
-      const data: IOrderBookWSRS = JSON.parse(event.data);
-      if (data.numLevels) {
-        const updatedOrderBookData = calculateAndReturnTotal(data);
-
-        dispatch(setOrderBook(updatedOrderBookData));
-      } else {
-        // dispatch(updateOrderDataWithNewData(data));
-      }
+      onWebSocketMessage(event, dispatch);
     };
     ws.onclose = function (error) {
       console.log("on close");
@@ -38,19 +29,20 @@ export const openWebSocketThunk = () => {
   };
 };
 
-// let onWebSocketMessage = (event: MessageEvent<string>) => {
-//   console.log("on message");
+let onWebSocketMessage = (event: MessageEvent<string>, dispatch: Dispatch) => {
+  const data: IOrderBookWSRS = JSON.parse(event.data);
+  if (data.numLevels) {
+    onWebSocketMessage = debounce(onWebSocketMessage, 180, {
+      leading: true,
+      trailing: false,
+    });
+    const updatedOrderBookData = calculateAndReturnTotal(data);
 
-//   const data: IOrderBookWSRS = JSON.parse(event.data);
-//   if (data.numLevels) {
-//     const updatedOrderBookData = calculateAndReturnTotal(data);
-
-//     dispatch(setOrderBook(updatedOrderBookData));
-//   } else {
-//     // updateOrderDataWithNewData = debounce(updateOrderDataWithNewData, 1000);
-//     dispatch(updateOrderDataWithNewData(data));
-//   }
-// };
+    dispatch(setOrderBook(updatedOrderBookData));
+  } else {
+    dispatch(updateOrderDataWithNewData(data));
+  }
+};
 
 const sendEventToWebSocket = (event: string, productId: string) => {
   ws.send(
@@ -90,13 +82,12 @@ const calculateAndReturnTotal = (
   };
 };
 
-const updateOrderDataWithNewData = (newData: IOrderBookWSRS) => {
+let updateOrderDataWithNewData = (newData: IOrderBookWSRS) => {
   return (dispatch: Dispatch, getState: () => IState) => {
     const orderBook: IUpdatedOrderBookWSRS = getOrderBook(getState());
     let updatedOrderBook = { ...orderBook };
 
     // total isn't updated
-
     newData.asks?.forEach((ask) => {
       const item = updatedOrderBook.asks?.find(
         (previousAsk) => previousAsk[0] === ask[0]
@@ -139,36 +130,41 @@ const updateOrderDataWithNewData = (newData: IOrderBookWSRS) => {
 };
 
 export const sortByGroupSelectThunk = (value: number) => {
-  return (dispatch, getState) => {
-    const arrs = [
-      [8822, 200],
-      [1234, 200],
-      [1234.5, 190],
-      [5555, 29],
-      [7777, 32],
-      [7777.5, 400],
-    ];
-    let newArrs = [...arrs];
-    for (let i = 0; i < newArrs.length; i++) {
-      const selectedValuePrice = newArrs[i][0];
-      console.log(selectedValuePrice % value);
+  return (dispatch: Dispatch, getState: () => IState) => {
+    const orderBook: IUpdatedOrderBookWSRS = getOrderBook(getState());
+    const sortedAsksByValue = sortByGroupSelect(value, orderBook?.asks);
+    const sortedBidsByValue = sortByGroupSelect(value, orderBook?.bids);
+    const bodyToReturn = {
+      ...orderBook,
+      asks: sortedAsksByValue,
+      bids: sortedBidsByValue,
+    };
+    console.log(bodyToReturn);
+    dispatch(updateOrderBook(bodyToReturn));
+  };
+};
+const sortByGroupSelect = (value: number, orders: IOrder[] = []): IOrder[] => {
+  let updatedOrderBook = [...orders];
+  for (let i = 0; i < updatedOrderBook.length; i++) {
+    const selectedValuePrice = updatedOrderBook[i][0];
+    console.log(selectedValuePrice % value);
 
-      const remainder = selectedValuePrice % value;
-      if (remainder) {
-        const valueWithoutRemainder = selectedValuePrice - remainder;
-        console.log(valueWithoutRemainder);
-        const matchedOrderBook = newArrs.find(
-          (valueArrs) => valueArrs[0] === valueWithoutRemainder
-        );
-        if (matchedOrderBook) {
-          const indexOfFound = newArrs.indexOf(matchedOrderBook);
-          newArrs[indexOfFound][1] = newArrs[indexOfFound][1] + newArrs[i][1];
-          newArrs.splice(i, 1);
-        } else {
-          newArrs[i][0] = valueWithoutRemainder;
-        }
+    const remainder = selectedValuePrice % value;
+    if (remainder) {
+      const valueWithoutRemainder = selectedValuePrice - remainder;
+      console.log(valueWithoutRemainder);
+      const matchedOrderBook = updatedOrderBook.find(
+        (valueArrs) => valueArrs[0] === valueWithoutRemainder
+      );
+      if (matchedOrderBook) {
+        const indexOfFound = updatedOrderBook.indexOf(matchedOrderBook);
+        updatedOrderBook[indexOfFound][1] =
+          updatedOrderBook[indexOfFound][1] + updatedOrderBook[i][1];
+        updatedOrderBook.splice(i, 1);
+      } else {
+        updatedOrderBook[i][0] = valueWithoutRemainder;
       }
     }
-    console.log(newArrs);
-  };
+  }
+  return updatedOrderBook;
 };
