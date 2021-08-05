@@ -1,11 +1,11 @@
 import { Dispatch } from "react";
 import { setOrderBook, updateOrderBook } from "./orderBookActions";
 import { getOrderBook } from "./orderBookSelectors";
-
+import debounce from "lodash.debounce";
 let ws: WebSocket;
 
 export const openWebSocketThunk = () => {
-  return (dispatch: Dispatch, getState: () => IState) => {
+  return (dispatch: Dispatch) => {
     const wsURL = "wss://www.cryptofacilities.com/ws/v1";
     ws = new WebSocket(wsURL);
 
@@ -22,15 +22,14 @@ export const openWebSocketThunk = () => {
     };
     ws.onmessage = function (event: MessageEvent<string>) {
       console.log("on message");
-      // console.log(event);
 
       const data: IOrderBookWSRS = JSON.parse(event.data);
       if (data.numLevels) {
         const updatedOrderBookData = calculateAndReturnTotal(data);
-        debugger;
+
         dispatch(setOrderBook(updatedOrderBookData));
       } else {
-        dispatch(updateOrderDataWithNewData(data));
+        // dispatch(updateOrderDataWithNewData(data));
       }
     };
     ws.onclose = function (error) {
@@ -38,6 +37,20 @@ export const openWebSocketThunk = () => {
     };
   };
 };
+
+// let onWebSocketMessage = (event: MessageEvent<string>) => {
+//   console.log("on message");
+
+//   const data: IOrderBookWSRS = JSON.parse(event.data);
+//   if (data.numLevels) {
+//     const updatedOrderBookData = calculateAndReturnTotal(data);
+
+//     dispatch(setOrderBook(updatedOrderBookData));
+//   } else {
+//     // updateOrderDataWithNewData = debounce(updateOrderDataWithNewData, 1000);
+//     dispatch(updateOrderDataWithNewData(data));
+//   }
+// };
 
 const sendEventToWebSocket = (event: string, productId: string) => {
   ws.send(
@@ -59,18 +72,14 @@ const calculateAndReturnTotal = (
   let newAsks: IUpdatedOrder[] = [];
   let newBids: IUpdatedOrder[] = [];
   response.asks?.forEach((ask, i) => {
-    // total += total + ask[1];
     newAsks[i] = [...ask];
   });
-  // console.log(newAsks);
   const asksTotal = total;
 
   total = 0;
   response.bids?.forEach((bid, i) => {
-    // total += total + bid[1];
     newBids[i] = [...bid];
   });
-  // console.log(newBids);
   const bidsTotal = total;
   return {
     ...response,
@@ -82,7 +91,7 @@ const calculateAndReturnTotal = (
 };
 
 const updateOrderDataWithNewData = (newData: IOrderBookWSRS) => {
-  return (dispatch, getState) => {
+  return (dispatch: Dispatch, getState: () => IState) => {
     const orderBook: IUpdatedOrderBookWSRS = getOrderBook(getState());
     let updatedOrderBook = { ...orderBook };
 
@@ -126,5 +135,40 @@ const updateOrderDataWithNewData = (newData: IOrderBookWSRS) => {
     });
     console.log(updatedOrderBook);
     dispatch(updateOrderBook(updatedOrderBook));
+  };
+};
+
+export const sortByGroupSelectThunk = (value: number) => {
+  return (dispatch, getState) => {
+    const arrs = [
+      [8822, 200],
+      [1234, 200],
+      [1234.5, 190],
+      [5555, 29],
+      [7777, 32],
+      [7777.5, 400],
+    ];
+    let newArrs = [...arrs];
+    for (let i = 0; i < newArrs.length; i++) {
+      const selectedValuePrice = newArrs[i][0];
+      console.log(selectedValuePrice % value);
+
+      const remainder = selectedValuePrice % value;
+      if (remainder) {
+        const valueWithoutRemainder = selectedValuePrice - remainder;
+        console.log(valueWithoutRemainder);
+        const matchedOrderBook = newArrs.find(
+          (valueArrs) => valueArrs[0] === valueWithoutRemainder
+        );
+        if (matchedOrderBook) {
+          const indexOfFound = newArrs.indexOf(matchedOrderBook);
+          newArrs[indexOfFound][1] = newArrs[indexOfFound][1] + newArrs[i][1];
+          newArrs.splice(i, 1);
+        } else {
+          newArrs[i][0] = valueWithoutRemainder;
+        }
+      }
+    }
+    console.log(newArrs);
   };
 };
