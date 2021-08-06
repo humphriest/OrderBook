@@ -4,13 +4,26 @@ interface IIsBid {
   isBid?: boolean;
 }
 
+interface IBackgroundColorProps {
+  isBid?: boolean;
+  percentage?: number;
+}
+
 export const MainContainerView = styled.View`
   flex: 1;
 `;
-
+export const BackgroundColourView = styled.View`
+  width: ${(props: IBackgroundColorProps) => `${props.percentage}%`};
+  background-color: ${(props: IBackgroundColorProps) =>
+    props.isBid ? "rgba(011, 195, 090, 0.1)" : "rgba(66,35,45,0.3)"};
+  height: 100%;
+  align-self: flex-end;
+`;
 export const RowContainerView = styled.View`
   flex-direction: row;
-  background-color: ${(props: IIsBid) => (props.isBid ? "#2E3D31" : "#3A2B33")};
+  background-color: transparent;
+  position: absolute;
+  width: 100%;
 `;
 
 export const SectionContainerView = styled.View`

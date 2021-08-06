@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  BackgroundColourView,
   MainContainerView,
   OrderText,
   RowContainerView,
@@ -10,15 +11,21 @@ export const Order = ({
   price,
   size,
   total,
+  overallTotal,
   isBid,
 }: {
   price: number;
   size: number;
   total: number;
+  overallTotal?: number;
   isBid: boolean;
 }) => {
   return (
     <MainContainerView>
+      <BackgroundColourView
+        isBid={isBid}
+        percentage={(total / overallTotal) * 100}
+      />
       <RowContainerView isBid={isBid}>
         <SectionContainerView>
           <OrderText isBid={isBid}>{price}</OrderText>

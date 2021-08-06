@@ -193,20 +193,18 @@ const calculateTotalAndReturn = (
 ): IUpdatedOrderBookWSRS => {
   let newAsks: IUpdatedOrder[] = [];
   let newBids: IUpdatedOrder[] = [];
-  // loop through asks from high to low
 
-  let total = 0;
+  let asksTotal = 0;
   orderBook.asks?.forEach((ask, i) => {
-    total = total + ask[1];
-    newAsks[i] = [...ask, total];
+    asksTotal = asksTotal + ask[1];
+    newAsks[i] = [...ask, asksTotal];
   });
 
-  total = 0;
-  // loop through bids from low to high
+  let bidsTotal = 0;
   orderBook?.bids?.forEach((bid, i) => {
-    total = total + bid[1];
-    newBids[i] = [...bid, total];
+    bidsTotal = bidsTotal + bid[1];
+    newBids[i] = [...bid, bidsTotal];
   });
-
-  return { ...orderBook, bids: newBids, asks: newAsks };
+  const highestTotal = bidsTotal > asksTotal ? bidsTotal : asksTotal;
+  return { ...orderBook, bids: newBids, asks: newAsks, highestTotal };
 };

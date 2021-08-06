@@ -1,12 +1,10 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React from "react";
 import { Order } from "../Order/Order";
 import {
   AskContainerView,
   BidContainerView,
   MainContainerView,
   VerticalContainerView,
-  OrderContainerView,
 } from "./OrderBook.styles";
 
 export const OrderBook = ({
@@ -20,7 +18,13 @@ export const OrderBook = ({
         <BidContainerView>
           {orderBookData?.bids?.reverse()?.map((bid) => {
             return (
-              <Order price={bid[0]} size={bid[1]} total={bid[2]} isBid={true} />
+              <Order
+                price={bid[0]}
+                size={bid[1]}
+                total={bid[2]}
+                overallTotal={orderBookData.highestTotal}
+                isBid={true}
+              />
             );
           })}
         </BidContainerView>
@@ -31,6 +35,7 @@ export const OrderBook = ({
                 price={ask[0]}
                 size={ask[1]}
                 total={ask[2]}
+                overallTotal={orderBookData.highestTotal}
                 isBid={false}
               />
             );

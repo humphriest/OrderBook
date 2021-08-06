@@ -10,6 +10,7 @@ declare interface IUpdatedOrderBookWSRS {
   bids?: IUpdatedOrder[];
   asks?: IUpdatedOrder[];
   product_id?: string;
+  highestTotal?: number;
 }
 
 declare type IOrder = [price: number, amount: number];
