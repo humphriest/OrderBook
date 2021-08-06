@@ -15,11 +15,9 @@ export const VerticalContainerView = styled.View`
 
 export const BidContainerView = styled.View`
   flex: 0.5;
-  /* background-color: red; */
 `;
 export const AskContainerView = styled.View`
   flex: 0.5;
-  /* background-color: green; */
 `;
 
 export const Container = styled.View`

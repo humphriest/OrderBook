@@ -6,14 +6,28 @@ interface IIsBid {
 
 interface IBackgroundColorProps {
   isBid?: boolean;
-  percentage?: number;
+  overallTotal?: number;
+  total?: number;
 }
+
+const calculateBackgroundPercentage = (props: IBackgroundColorProps) => {
+  if (!props.overallTotal || !props.total) return `0%`;
+  return `${(props.total / props.overallTotal) * 100}%`;
+};
+
+const getTextColor = (props: IIsBid) => {
+  if (props.isBid === undefined) return "#FFFFFF";
+
+  if (!!props.isBid) return "green";
+
+  return "red";
+};
 
 export const MainContainerView = styled.View`
   flex: 1;
 `;
 export const BackgroundColourView = styled.View`
-  width: ${(props: IBackgroundColorProps) => `${props.percentage}%`};
+  width: ${calculateBackgroundPercentage};
   background-color: ${(props: IBackgroundColorProps) =>
     props.isBid ? "rgba(011, 195, 090, 0.1)" : "rgba(66,35,45,0.3)"};
   height: 100%;
@@ -32,13 +46,6 @@ export const SectionContainerView = styled.View`
   padding-right: 32;
 `;
 
-const getTextColor = (props: IIsBid) => {
-  if (props.isBid === undefined) return "#FFFFFF";
-
-  if (!!props.isBid) return "green";
-
-  return "red";
-};
 export const OrderText = styled.Text`
   color: ${getTextColor};
   font-size: 14;

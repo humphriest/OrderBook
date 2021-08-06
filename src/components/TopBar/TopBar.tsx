@@ -25,13 +25,12 @@ export const TopBar = ({
     else setSelectedGrouping(value);
   };
 
-  const returnDropDownItems = () => {
-    return groupings.map((grouping) => ({
+  const returnDropDownItems = () =>
+    groupings.map((grouping) => ({
       label: `Group ${grouping}`,
       value: grouping,
       selectable: true,
     }));
-  };
 
   return (
     <MainContainerView>

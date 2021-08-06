@@ -3,7 +3,7 @@ import { MainContainerView } from "./HomeScreen.styles";
 import { OrderBook } from "../components/OrderBook/OrderBook";
 import { TopBar } from "../components/TopBar/TopBar";
 import { BottomBar } from "../components/BottomBar/BottomBar";
-import { throwWebSocketError } from "../../redux/orderBook/orderBookThunks";
+import { closeWebSocketThunk } from "../../redux/orderBook/orderBookThunks";
 
 export interface IStateToProps {
   orderBook?: IOrderBookWSRS;
@@ -16,12 +16,17 @@ export type IDispatchToProps = {
   openWebSocket: (productId: string) => void;
   setSelectedGrouping: (value: number) => void;
   updateWebSocket: () => void;
+  throwWebSocketError: () => void;
 };
 
 interface IProps extends IStateToProps, IDispatchToProps {}
 export default class HomeScreen extends React.PureComponent<IProps> {
   componentDidMount() {
     this.props.openWebSocket("PI_XBTUSD");
+  }
+
+  componentWillUnmount() {
+    closeWebSocketThunk();
   }
 
   onPressToggleFeed = () => {
@@ -34,6 +39,7 @@ export default class HomeScreen extends React.PureComponent<IProps> {
       groupings,
       selectedGrouping,
       displayOrderBook,
+      throwWebSocketError,
     } = this.props;
     return (
       <MainContainerView>

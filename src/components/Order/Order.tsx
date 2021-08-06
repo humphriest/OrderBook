@@ -24,7 +24,8 @@ export const Order = ({
     <MainContainerView>
       <BackgroundColourView
         isBid={isBid}
-        percentage={(total / overallTotal) * 100}
+        overallTotal={overallTotal}
+        total={total}
       />
       <RowContainerView isBid={isBid}>
         <SectionContainerView>

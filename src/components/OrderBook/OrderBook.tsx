@@ -11,37 +11,35 @@ export const OrderBook = ({
   orderBookData,
 }: {
   orderBookData?: IUpdatedOrderBookWSRS;
-}) => {
-  return (
-    <MainContainerView>
-      <VerticalContainerView>
-        <BidContainerView>
-          {orderBookData?.bids?.reverse()?.map((bid) => {
-            return (
-              <Order
-                price={bid[0]}
-                size={bid[1]}
-                total={bid[2]}
-                overallTotal={orderBookData.highestTotal}
-                isBid={true}
-              />
-            );
-          })}
-        </BidContainerView>
-        <AskContainerView>
-          {orderBookData?.asks?.map((ask) => {
-            return (
-              <Order
-                price={ask[0]}
-                size={ask[1]}
-                total={ask[2]}
-                overallTotal={orderBookData.highestTotal}
-                isBid={false}
-              />
-            );
-          })}
-        </AskContainerView>
-      </VerticalContainerView>
-    </MainContainerView>
-  );
-};
+}) => (
+  <MainContainerView>
+    <VerticalContainerView>
+      <BidContainerView>
+        {orderBookData?.bids?.reverse()?.map((bid) => {
+          return (
+            <Order
+              price={bid[0]}
+              size={bid[1]}
+              total={bid[2]}
+              overallTotal={orderBookData.highestTotal}
+              isBid={true}
+            />
+          );
+        })}
+      </BidContainerView>
+      <AskContainerView>
+        {orderBookData?.asks?.map((ask) => {
+          return (
+            <Order
+              price={ask[0]}
+              size={ask[1]}
+              total={ask[2]}
+              overallTotal={orderBookData.highestTotal}
+              isBid={false}
+            />
+          );
+        })}
+      </AskContainerView>
+    </VerticalContainerView>
+  </MainContainerView>
+);
