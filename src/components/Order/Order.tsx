@@ -1,8 +1,7 @@
 import React from "react";
-import { Text } from "react-native";
-import { WhiteText } from "../OrderBook/OrderBook.styles";
 import {
   MainContainerView,
+  OrderText,
   RowContainerView,
   SectionContainerView,
 } from "./Order.styles";
@@ -22,13 +21,13 @@ export const Order = ({
     <MainContainerView>
       <RowContainerView isBid={isBid}>
         <SectionContainerView>
-          <WhiteText>{price}</WhiteText>
+          <OrderText isBid={isBid}>{price}</OrderText>
         </SectionContainerView>
         <SectionContainerView>
-          <WhiteText>{size}</WhiteText>
+          <OrderText>{size}</OrderText>
         </SectionContainerView>
         <SectionContainerView>
-          <WhiteText>{total}</WhiteText>
+          <OrderText>{total}</OrderText>
         </SectionContainerView>
       </RowContainerView>
     </MainContainerView>

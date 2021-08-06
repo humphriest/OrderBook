@@ -1,24 +1,24 @@
 import React, { useState } from "react";
-import { Text } from "react-native";
+import { useEffect } from "react";
 import { Order } from "../Order/Order";
 import {
   AskContainerView,
   BidContainerView,
   MainContainerView,
-  TextView,
   VerticalContainerView,
+  OrderContainerView,
 } from "./OrderBook.styles";
 
 export const OrderBook = ({
   orderBookData,
 }: {
-  orderBookData: IUpdatedOrderBookWSRS;
+  orderBookData?: IUpdatedOrderBookWSRS;
 }) => {
   return (
     <MainContainerView>
       <VerticalContainerView>
         <BidContainerView>
-          {orderBookData?.bids?.map((bid) => {
+          {orderBookData?.bids?.reverse()?.map((bid) => {
             return (
               <Order price={bid[0]} size={bid[1]} total={bid[2]} isBid={true} />
             );

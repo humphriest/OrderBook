@@ -6,9 +6,10 @@ import { BottomBar } from "../components/BottomBar/BottomBar";
 import { throwWebSocketError } from "../../redux/orderBook/orderBookThunks";
 
 export interface IStateToProps {
-  orderBook?: IUpdatedOrderBookWSRS;
+  orderBook?: IOrderBookWSRS;
   groupings: number[];
   selectedGrouping: number;
+  displayOrderBook?: IUpdatedOrderBookWSRS;
 }
 
 export type IDispatchToProps = {
@@ -28,8 +29,12 @@ export default class HomeScreen extends React.PureComponent<IProps> {
   };
 
   render() {
-    const { orderBook, setSelectedGrouping, groupings, selectedGrouping } =
-      this.props;
+    const {
+      setSelectedGrouping,
+      groupings,
+      selectedGrouping,
+      displayOrderBook,
+    } = this.props;
     return (
       <MainContainerView>
         <TopBar
@@ -37,7 +42,7 @@ export default class HomeScreen extends React.PureComponent<IProps> {
           groupings={groupings}
           selectedGrouping={selectedGrouping}
         />
-        <OrderBook orderBookData={orderBook} />
+        <OrderBook orderBookData={displayOrderBook} />
         <BottomBar
           killFeed={throwWebSocketError}
           toggleFeed={this.onPressToggleFeed}

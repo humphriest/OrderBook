@@ -1,6 +1,7 @@
 import { connect } from "react-redux";
 import { setSelectedGrouping } from "../../redux/orderBook/orderBookActions";
 import {
+  getDisplayOrderBook,
   getGroupings,
   getGroupSelect,
   getOrderBook,
@@ -16,6 +17,7 @@ const mapStateToProps = (state: IState): IStateToProps => {
     orderBook: getOrderBook(state),
     groupings: getGroupings(state),
     selectedGrouping: getGroupSelect(state),
+    displayOrderBook: getDisplayOrderBook(state),
   };
 };
 

@@ -2,16 +2,19 @@ import {
   resetOrderBook,
   setGroupings,
   setSelectedGrouping,
+  updateDisplayOrderBook,
   updateOrderBook,
 } from "./orderBookActions";
 import { getGroupSelect, getOrderBook } from "./orderBookSelectors";
-import debounce from "lodash.debounce";
+import throttle from "lodash.throttle";
+
 let ws: WebSocket;
 
 export const openWebSocketThunk = (productId: string) => {
   return (dispatch: Dispatch) => {
     const wsURL = "wss://www.cryptofacilities.com/ws/v1";
     ws = new WebSocket(wsURL);
+
     if (!!ws.readyState) return;
 
     ws.onopen = function () {
@@ -25,9 +28,10 @@ export const openWebSocketThunk = (productId: string) => {
       console.log(error);
     };
     ws.onmessage = function (event: MessageEvent<string>) {
-      // console.log("onMessage");
+      console.log("onMessage");
       onWebSocketMessage(event, dispatch);
     };
+
     ws.onclose = function (error) {
       console.log("on close");
     };
@@ -36,9 +40,9 @@ export const openWebSocketThunk = (productId: string) => {
 
 let onWebSocketMessage = (event: MessageEvent<string>, dispatch: Dispatch) => {
   const data: IOrderBookWSRS = JSON.parse(event.data);
-
+  console.log(data);
   if (data.numLevels) {
-    onWebSocketMessage = debounce(onWebSocketMessage, 170, {
+    ws.onmessage = throttle(ws.onmessage, 1000, {
       leading: true,
       trailing: false,
     });
@@ -49,6 +53,9 @@ let onWebSocketMessage = (event: MessageEvent<string>, dispatch: Dispatch) => {
     const extendedOrderBook = dispatch(updateOrderDataWithNewData(data));
     const sortedOrderBook = dispatch(sortByGroupSelectThunk(extendedOrderBook));
     dispatch(updateOrderBook(sortedOrderBook));
+
+    const orderBookWithTotal = calculateTotalAndReturn(sortedOrderBook);
+    dispatch(updateDisplayOrderBook(orderBookWithTotal));
   }
 };
 
@@ -70,7 +77,6 @@ let updateOrderDataWithNewData = (newData: IOrderBookWSRS) => {
     const updatedAsks = filterOutAndRemoveOrders(newData.asks, orderBook?.asks);
     const updatedBids = filterOutAndRemoveOrders(newData.bids, orderBook?.bids);
     // total isn't updated
-    console.log({ ...updatedOrderBook, asks: updatedAsks, bids: updatedBids });
     return {
       ...updatedOrderBook,
       asks: updatedAsks,
@@ -160,9 +166,7 @@ export const updateWebSocketThunk = () => {
     sendEventToWebSocket("unsubscribe", orderBook?.product_id);
     dispatch(resetOrderBook(newProductId));
 
-    setTimeout(() => {
-      sendEventToWebSocket("subscribe", newProductId);
-    }, 500);
+    sendEventToWebSocket("subscribe", newProductId);
 
     if (newProductId === "PI_XBTUSD") {
       dispatch(setGroupings([0.5, 1, 2.5]));
@@ -174,6 +178,35 @@ export const updateWebSocketThunk = () => {
   };
 };
 
-export const throwWebSocketError = () => {
-  sendEventToWebSocket("hbrefiu", "wefkuyv");
+export const throwWebSocketError = async () => {
+  ws.send(
+    JSON.stringify({
+      event: "werfq",
+      feed: "book_ui_1",
+      products_ids: ["Nothinug"],
+    })
+  );
+};
+
+const calculateTotalAndReturn = (
+  orderBook: IOrderBookWSRS
+): IUpdatedOrderBookWSRS => {
+  let newAsks: IUpdatedOrder[] = [];
+  let newBids: IUpdatedOrder[] = [];
+  // loop through asks from high to low
+
+  let total = 0;
+  orderBook.asks?.forEach((ask, i) => {
+    total = total + ask[1];
+    newAsks[i] = [...ask, total];
+  });
+
+  total = 0;
+  // loop through bids from low to high
+  orderBook?.bids?.forEach((bid, i) => {
+    total = total + bid[1];
+    newBids[i] = [...bid, total];
+  });
+
+  return { ...orderBook, bids: newBids, asks: newAsks };
 };

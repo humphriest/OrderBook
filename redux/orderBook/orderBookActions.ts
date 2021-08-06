@@ -3,9 +3,11 @@ export const RESET_ORDER_BOOK: RESET_ORDER_BOOK = "RESET_ORDER_BOOK";
 export const SET_SELECTED_GROUPING: SET_SELECTED_GROUPING =
   "SET_SELECTED_GROUPING";
 export const SET_GROUPINGS: SET_GROUPINGS = "SET_GROUPINGS";
+export const UPDATE_DISPLAY_ORDER_BOOK: UPDATE_DISPLAY_ORDER_BOOK =
+  "UPDATE_DISPLAY_ORDER_BOOK";
 
 export const updateOrderBook = (
-  orderBookData: IUpdatedOrderBookWSRS
+  orderBookData: IOrderBookWSRS
 ): IUpdateOrderBook => {
   return { type: UPDATE_ORDER_BOOK, payload: orderBookData };
 };
@@ -21,4 +23,10 @@ export const setSelectedGrouping = (
 };
 export const setGroupings = (groupings: number[]): ISetGroupings => {
   return { type: SET_GROUPINGS, payload: groupings };
+};
+
+export const updateDisplayOrderBook = (
+  orderBookData: IUpdatedOrderBookWSRS
+): IUpdateDisplayOrderBook => {
+  return { type: UPDATE_DISPLAY_ORDER_BOOK, payload: orderBookData };
 };

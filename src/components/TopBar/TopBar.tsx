@@ -20,6 +20,11 @@ export const TopBar = ({
 }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const onPressGroupSelect = (value: () => number) => {
+    if (typeof value === "function") setSelectedGrouping(value());
+    else setSelectedGrouping(value);
+  };
+
   const returnDropDownItems = () => {
     return groupings.map((grouping) => ({
       label: `Group ${grouping}`,
@@ -49,10 +54,7 @@ export const TopBar = ({
           value={selectedGrouping}
           open={isOpen}
           setOpen={(value) => setIsOpen(value)}
-          setValue={(value) => {
-            if (typeof value === "function") setSelectedGrouping(value());
-            else setSelectedGrouping(value);
-          }}
+          setValue={onPressGroupSelect}
         />
       </ButtonContainerView>
     </MainContainerView>
