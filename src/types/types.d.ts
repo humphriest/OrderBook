@@ -1,19 +1,16 @@
 declare interface IOrderBookWSRS {
   numLevels?: number;
-  feed: string;
+  // feed: string;
   bids?: IOrder[];
   asks?: IOrder[];
-  product_id: string;
+  product_id?: string;
 }
 
 declare interface IUpdatedOrderBookWSRS {
   numLevels?: number;
-  feed: string;
   bids?: IUpdatedOrder[];
   asks?: IUpdatedOrder[];
-  product_id: string;
-  asksTotal: number;
-  bidsTotal: number;
+  product_id?: string;
 }
 
 declare type IOrder = [price: number, amount: number];

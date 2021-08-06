@@ -8,16 +8,24 @@ import {
 } from "./TopBar.styles";
 
 interface IProps {
-  setGroupSelect: (groupSelect: number) => void;
+  setSelectedGrouping: (selectedGrouping: number) => void;
+  groupings: number[];
+  selectedGrouping: number;
 }
 
-export const TopBar = ({ setGroupSelect }: IProps) => {
-  const [selectedValue, setSelectedValue] = useState(0.5);
+export const TopBar = ({
+  setSelectedGrouping,
+  groupings,
+  selectedGrouping,
+}: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const onPressGroupSelect = (value: number) => {
-    setSelectedValue(value);
-    setGroupSelect(selectedValue);
+  const returnDropDownItems = () => {
+    return groupings.map((grouping) => ({
+      label: `Group ${grouping}`,
+      value: grouping,
+      selectable: true,
+    }));
   };
 
   return (
@@ -37,15 +45,14 @@ export const TopBar = ({ setGroupSelect }: IProps) => {
             height: 20,
             backgroundColor: "black",
           }}
-          items={[
-            { label: "Group 0.5", value: 0.5, selectable: true },
-            { label: "Group 1", value: 1, selectable: true },
-            { label: "Group 2.5", value: 2.5, selectable: true },
-          ]}
-          value={selectedValue}
+          items={returnDropDownItems()}
+          value={selectedGrouping}
           open={isOpen}
           setOpen={(value) => setIsOpen(value)}
-          setValue={(value) => onPressGroupSelect(value)}
+          setValue={(value) => {
+            if (typeof value === "function") setSelectedGrouping(value());
+            else setSelectedGrouping(value);
+          }}
         />
       </ButtonContainerView>
     </MainContainerView>

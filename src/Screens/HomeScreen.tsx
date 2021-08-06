@@ -4,31 +4,39 @@ import { OrderBook } from "../components/OrderBook/OrderBook";
 import { TopBar } from "../components/TopBar/TopBar";
 import { BottomBar } from "../components/BottomBar/BottomBar";
 import { throwWebSocketError } from "../../redux/orderBook/orderBookThunks";
-interface IProps {
-  openWebSocket: (productId: string) => void;
-  sortByGroupSelect: (value: number) => void;
-  updateWebSocket: () => void;
-  orderBook: IUpdatedOrderBookWSRS;
+
+export interface IStateToProps {
+  orderBook?: IUpdatedOrderBookWSRS;
+  groupings: number[];
+  selectedGrouping: number;
 }
 
+export type IDispatchToProps = {
+  openWebSocket: (productId: string) => void;
+  setSelectedGrouping: (value: number) => void;
+  updateWebSocket: () => void;
+};
+
+interface IProps extends IStateToProps, IDispatchToProps {}
 export default class HomeScreen extends React.PureComponent<IProps> {
   componentDidMount() {
     this.props.openWebSocket("PI_XBTUSD");
   }
-  // onPressKillFeed = () => {
-  //   throwWebSocketError();
-  // };
+
   onPressToggleFeed = () => {
     this.props.updateWebSocket();
   };
-  // This is going to consist of a TopBar with the group select box in it
-  // the middle or main component which will be the order book
-  // the bottom bar which will contain the buttons
+
   render() {
-    const { orderBook, sortByGroupSelect } = this.props;
+    const { orderBook, setSelectedGrouping, groupings, selectedGrouping } =
+      this.props;
     return (
       <MainContainerView>
-        <TopBar setGroupSelect={sortByGroupSelect} />
+        <TopBar
+          setSelectedGrouping={setSelectedGrouping}
+          groupings={groupings}
+          selectedGrouping={selectedGrouping}
+        />
         <OrderBook orderBookData={orderBook} />
         <BottomBar
           killFeed={throwWebSocketError}

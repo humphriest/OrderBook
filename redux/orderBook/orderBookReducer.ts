@@ -1,17 +1,21 @@
 import {
   RESET_ORDER_BOOK,
+  SET_SELECTED_GROUPING,
   SET_ORDER_BOOK,
   UPDATE_ORDER_BOOK,
+  SET_GROUPINGS,
 } from "./orderBookActions";
 
 const initialState: IOrderBookState = {
   orderBook: undefined,
+  selectedGrouping: 0.5,
+  groupings: [0.5, 1, 2.5],
 };
 
-export default function orderBookReducer(
+export const orderBookReducer = (
   state: IOrderBookState = initialState,
-  action
-) {
+  action: IOrderBookActions
+) => {
   switch (action.type) {
     case SET_ORDER_BOOK:
     case UPDATE_ORDER_BOOK: {
@@ -23,7 +27,16 @@ export default function orderBookReducer(
         orderBook: { asks: [], bids: [], product_id: action.payload },
       };
     }
+    case SET_SELECTED_GROUPING: {
+      return {
+        ...state,
+        selectedGrouping: action.payload,
+      };
+    }
+    case SET_GROUPINGS: {
+      return { ...state, groupings: action.payload };
+    }
     default:
       return state;
   }
-}
+};
