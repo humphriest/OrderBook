@@ -12,29 +12,31 @@ let ws: WebSocket;
 
 export const openWebSocketThunk = (productId: string) => {
   return (dispatch: Dispatch) => {
-    const wsURL = "wss://www.cryptofacilities.com/ws/v1";
-    ws = new WebSocket(wsURL);
+    try {
+      const wsURL = "wss://www.cryptofacilities.com/ws/v1";
+      ws = new WebSocket(wsURL);
 
-    if (!!ws.readyState) return;
+      if (!!ws.readyState) return;
 
-    ws.onopen = function () {
-      console.log("on open");
-      if (ws.readyState === 1) {
-        sendEventToWebSocket("subscribe", productId);
-      }
-    };
-    ws.onerror = function (error) {
-      console.log("on error");
-      console.log(error);
-    };
-    ws.onmessage = function (event: MessageEvent<string>) {
-      console.log("onMessage");
-      onWebSocketMessage(event, dispatch);
-    };
+      ws.onopen = function () {
+        console.log("on open");
+        if (ws.readyState === 1) {
+          sendEventToWebSocket("subscribe", productId);
+        }
+      };
+      ws.onerror = function (error) {
+        console.log("on error");
+        console.log(error);
+      };
+      ws.onmessage = function (event: MessageEvent<string>) {
+        console.log("onMessage");
+        onWebSocketMessage(event, dispatch);
+      };
 
-    ws.onclose = function (error) {
-      console.log("on close");
-    };
+      ws.onclose = function (error) {
+        console.log("on close");
+      };
+    } catch (err) {}
   };
 };
 
@@ -130,16 +132,22 @@ export const sortByGroupSelectThunk = (incomingOrderBook: IOrderBookWSRS) => {
   };
 };
 
+const countDecimals = function (value: number) {
+  if (value % 1 != 0) return value.toString().split(".")[1].length;
+  return 0;
+};
+
 const sortByGroupSelect = (value: number, orders: IOrder[] = []): IOrder[] => {
   let updatedOrderBook = [...orders];
   for (let i = 0; i < updatedOrderBook.length; i++) {
     const selectedValuePrice = updatedOrderBook[i][0];
-    const remainder = selectedValuePrice % value;
+    let remainder = selectedValuePrice % value;
 
-    // console.log("remainder: " + remainder);
     if (remainder) {
-      const valueWithoutRemainder = selectedValuePrice - remainder;
-      // console.log("valueWithoutRemainder: " + valueWithoutRemainder);
+      const numberOfDecimals = countDecimals(value);
+      const valueWithoutRemainder = parseFloat(
+        (selectedValuePrice - remainder).toFixed(numberOfDecimals)
+      );
       const matchedOrderBook = updatedOrderBook.find(
         (valueArrs) => valueArrs[0] === valueWithoutRemainder
       );
@@ -195,16 +203,21 @@ const calculateTotalAndReturn = (
   let newBids: IUpdatedOrder[] = [];
 
   let asksTotal = 0;
-  orderBook.asks?.forEach((ask, i) => {
+  orderBook.asks?.slice(0, 15).forEach((ask, i) => {
     asksTotal = asksTotal + ask[1];
     newAsks[i] = [...ask, asksTotal];
   });
 
   let bidsTotal = 0;
-  orderBook?.bids?.forEach((bid, i) => {
+  orderBook?.bids?.slice(0, 15).forEach((bid, i) => {
     bidsTotal = bidsTotal + bid[1];
     newBids[i] = [...bid, bidsTotal];
   });
   const highestTotal = bidsTotal > asksTotal ? bidsTotal : asksTotal;
-  return { ...orderBook, bids: newBids, asks: newAsks, highestTotal };
+  return {
+    ...orderBook,
+    bids: newBids,
+    asks: newAsks,
+    highestTotal,
+  };
 };
