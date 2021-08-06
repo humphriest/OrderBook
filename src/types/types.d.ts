@@ -1,6 +1,5 @@
 declare interface IOrderBookWSRS {
   numLevels?: number;
-  // feed: string;
   bids?: IOrder[];
   asks?: IOrder[];
   product_id?: string;
@@ -14,7 +13,7 @@ declare interface IUpdatedOrderBookWSRS {
 }
 
 declare type IOrder = [price: number, amount: number];
-declare type IUpdatedOrder = [price: number, amount: number];
+declare type IUpdatedOrder = [price: number, amount: number, total: number];
 declare interface IOrderBookResponse {
   data: IOrderBookWSRS;
 }

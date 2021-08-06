@@ -1,7 +1,8 @@
 type IOrderBookState = {
-  orderBook?: IUpdatedOrderBookWSRS;
+  orderBook?: IOrderBookWSRS;
   selectedGrouping: number;
   groupings: number[];
+  displayOrderBook?: IUpdatedOrderBookWSRS;
 };
 declare interface IState {
   orderStateReducer: IOrderBookState;
