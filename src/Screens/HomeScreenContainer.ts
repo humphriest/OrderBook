@@ -4,7 +4,7 @@ import {
   getDisplayOrderBook,
   getGroupings,
   getSelectedGrouping,
-  getOrderBook,
+  getError,
 } from "../../redux/orderBook/orderBookSelectors";
 import {
   openWebSocketThunk,
@@ -15,10 +15,10 @@ import HomeScreen, { IDispatchToProps, IStateToProps } from "./HomeScreen";
 
 const mapStateToProps = (state: IState): IStateToProps => {
   return {
-    orderBook: getOrderBook(state),
     groupings: getGroupings(state),
     selectedGrouping: getSelectedGrouping(state),
     displayOrderBook: getDisplayOrderBook(state),
+    error: getError(state),
   };
 };
 
