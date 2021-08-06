@@ -48,5 +48,5 @@ export const SectionContainerView = styled.View`
 
 export const OrderText = styled.Text`
   color: ${getTextColor};
-  font-size: 14;
+  font-size: 12px;
 `;

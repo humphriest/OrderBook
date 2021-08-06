@@ -3,11 +3,17 @@ import NetInfo, {
   NetInfoState,
   NetInfoSubscription,
 } from "@react-native-community/netinfo";
-import { MainContainerView } from "./HomeScreen.styles";
+import {
+  ErrorButtonContainerView,
+  ErrorContainerView,
+  ErrorText,
+  MainContainerView,
+} from "./HomeScreen.styles";
 import { OrderBook } from "../components/OrderBook/OrderBook";
 import { TopBar } from "../components/TopBar/TopBar";
 import { BottomBar } from "../components/BottomBar/BottomBar";
 import { closeWebSocketThunk } from "../../redux/orderBook/orderBookThunks";
+import { AppState, AppStateStatus, Button } from "react-native";
 
 export interface IStateToProps {
   groupings: number[];
@@ -21,6 +27,7 @@ export type IDispatchToProps = {
   setSelectedGrouping: (value: number) => void;
   updateWebSocket: () => void;
   throwWebSocketError: () => void;
+  setError: (error?: Error) => void;
 };
 
 interface IProps extends IStateToProps, IDispatchToProps {}
@@ -30,25 +37,29 @@ interface IState {
 }
 
 let unsubscribeNetInfo: NetInfoSubscription | undefined;
+let appState: AppStateStatus = AppState.currentState;
 
 export default class HomeScreen extends React.PureComponent<IProps, IState> {
   componentDidMount() {
-    this.props.openWebSocket("PI_XBTUSD");
+    this.reopenWebSocket();
 
     unsubscribeNetInfo = NetInfo.addEventListener(
       this._handleConnectivityChange
     );
+    AppState.addEventListener("change", this._handleAppStateChange);
   }
+
+  reopenWebSocket = () => {
+    this.props.openWebSocket("PI_XBTUSD");
+  };
 
   _handleConnectivityChange = (state: NetInfoState) => {
     try {
       if (this.state.isConnected === state.isConnected) return;
-      const { displayOrderBook, openWebSocket } = this.props;
 
       this.setState({ isConnected: state.isConnected });
-
       if (state.isConnected) {
-        openWebSocket(displayOrderBook?.product_id);
+        this.reopenWebSocket();
       } else {
         closeWebSocketThunk();
       }
@@ -57,10 +68,51 @@ export default class HomeScreen extends React.PureComponent<IProps, IState> {
 
   componentWillUnmount() {
     closeWebSocketThunk();
+    AppState.removeEventListener("change", this._handleAppStateChange);
+    unsubscribeNetInfo && unsubscribeNetInfo();
   }
 
-  onPressToggleFeed = () => {
-    this.props.updateWebSocket();
+  _handleAppStateChange = async (nextAppState: AppStateStatus) => {
+    try {
+      if (nextAppState !== appState) {
+        appState = nextAppState;
+        if (nextAppState === "active") {
+          // reopen it when you come back into the foreground
+          this.reopenWebSocket();
+        } else {
+          // Closing the WebSocket when the app goes to background
+          closeWebSocketThunk();
+        }
+      }
+    } catch (err) {}
+  };
+
+  resetErrorAndOpenWebSocket = () => {
+    this.props.setError();
+    this.reopenWebSocket();
+  };
+
+  renderAppError = () => {
+    const { error } = this.props;
+
+    return (
+      <ErrorContainerView>
+        {!!error?.name && !!error?.message ? (
+          <>
+            <ErrorText>Name:{error.name}</ErrorText>
+            <ErrorText>Message:{error.message}</ErrorText>
+          </>
+        ) : (
+          <ErrorText>Opps! Something went wrong</ErrorText>
+        )}
+        <ErrorButtonContainerView>
+          <Button
+            title="Clear Error and Retry WebSocket"
+            onPress={this.resetErrorAndOpenWebSocket}
+          />
+        </ErrorButtonContainerView>
+      </ErrorContainerView>
+    );
   };
 
   render() {
@@ -70,7 +122,12 @@ export default class HomeScreen extends React.PureComponent<IProps, IState> {
       selectedGrouping,
       displayOrderBook,
       throwWebSocketError,
+      updateWebSocket,
+      error,
     } = this.props;
+
+    if (error) return this.renderAppError();
+
     return (
       <MainContainerView>
         <TopBar
@@ -81,7 +138,7 @@ export default class HomeScreen extends React.PureComponent<IProps, IState> {
         <OrderBook orderBookData={displayOrderBook} />
         <BottomBar
           killFeed={throwWebSocketError}
-          toggleFeed={this.onPressToggleFeed}
+          toggleFeed={updateWebSocket}
         />
       </MainContainerView>
     );

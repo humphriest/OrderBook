@@ -16,9 +16,10 @@ export const OrderBook = ({
     <VerticalContainerView>
       <BidContainerView>
         <Order price="Price" size="Size" total="Total" />
-        {orderBookData?.bids?.reverse()?.map((bid) => {
+        {orderBookData?.bids?.reverse()?.map((bid, i) => {
           return (
             <Order
+              key={i}
               price={bid[0]}
               size={bid[1]}
               total={bid[2]}
@@ -29,9 +30,10 @@ export const OrderBook = ({
         })}
       </BidContainerView>
       <AskContainerView>
-        {orderBookData?.asks?.map((ask) => {
+        {orderBookData?.asks?.map((ask, i) => {
           return (
             <Order
+              key={i}
               price={ask[0]}
               size={ask[1]}
               total={ask[2]}

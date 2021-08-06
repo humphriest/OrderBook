@@ -28,7 +28,7 @@ declare interface IUpdateDisplayOrderBook {
 }
 declare interface ISetError {
   type: SET_ERROR;
-  payload: Error;
+  payload?: Error;
 }
 
 declare type IOrderBookActions =

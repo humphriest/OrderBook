@@ -32,6 +32,6 @@ export const updateDisplayOrderBook = (
   return { type: UPDATE_DISPLAY_ORDER_BOOK, payload: orderBookData };
 };
 
-export const setError = (err: Error): ISetError => {
+export const setError = (err?: Error): ISetError => {
   return { type: SET_ERROR, payload: err };
 };

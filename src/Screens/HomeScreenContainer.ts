@@ -1,5 +1,8 @@
 import { connect } from "react-redux";
-import { setSelectedGrouping } from "../../redux/orderBook/orderBookActions";
+import {
+  setError,
+  setSelectedGrouping,
+} from "../../redux/orderBook/orderBookActions";
 import {
   getDisplayOrderBook,
   getGroupings,
@@ -27,5 +30,6 @@ const mapDispatchToProps: IDispatchToProps = {
   setSelectedGrouping,
   updateWebSocket: updateWebSocketThunk,
   throwWebSocketError,
+  setError,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);

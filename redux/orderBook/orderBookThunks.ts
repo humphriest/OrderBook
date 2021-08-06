@@ -34,11 +34,11 @@ export const openWebSocketThunk = (
           sendEventToWebSocket("subscribe", productId);
         }
       };
-      ws.onerror = function (error: Event) {
+      ws.onerror = function (error) {
         dispatch(
           retryWebSocketAfterFail({
             name: "Websocket error",
-            message: event?.type || "type",
+            message: error?.type || "type",
           })
         );
       };
