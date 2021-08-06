@@ -29,7 +29,7 @@ export const MainContainerView = styled.View`
 export const BackgroundColourView = styled.View`
   width: ${calculateBackgroundPercentage};
   background-color: ${(props: IBackgroundColorProps) =>
-    props.isBid ? "rgba(011, 195, 090, 0.1)" : "rgba(66,35,45,0.3)"};
+    props.isBid ? "rgba(011, 195, 090, 0.1)" : "rgba(248,73,95,0.1)"};
   height: 100%;
   align-self: flex-end;
 `;

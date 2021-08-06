@@ -1,5 +1,6 @@
 import {
   resetOrderBook,
+  setError,
   setGroupings,
   setSelectedGrouping,
   updateDisplayOrderBook,
@@ -14,12 +15,13 @@ import {
 } from "../../src/util/sortingAndFiltering";
 
 let ws: WebSocket;
+let retryAttempts = 0;
 
 export const openWebSocketThunk = (
-  productId: string,
+  productId: string = "PI_XBTUSD",
   runStateCheck: boolean = true
 ) => {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: () => IState) => {
     try {
       const wsURL = "wss://www.cryptofacilities.com/ws/v1";
       ws = new WebSocket(wsURL);
@@ -27,30 +29,53 @@ export const openWebSocketThunk = (
       if (runStateCheck && !!ws.readyState) return;
 
       ws.onopen = function () {
-        console.log("on open");
         if (ws.readyState === 1) {
+          retryAttempts = 0;
           sendEventToWebSocket("subscribe", productId);
         }
       };
-      ws.onerror = function (error) {
-        console.log("on error");
-        console.log(error);
+      ws.onerror = function (error: Event) {
+        dispatch(
+          retryWebSocketAfterFail({
+            name: "Websocket error",
+            message: event?.type || "type",
+          })
+        );
       };
       ws.onmessage = function (event: MessageEvent<string>) {
-        console.log("onMessage");
         onWebSocketMessage(event, dispatch);
       };
 
       ws.onclose = function (error) {
-        console.log("on close");
+        retryAttempts = 0;
       };
     } catch (err) {
-      // dispatch an error here and display it as an overlay
+      dispatch(retryWebSocketAfterFail(err));
     }
   };
 };
 
-let onWebSocketMessage = (event: MessageEvent<string>, dispatch: Dispatch) => {
+const retryWebSocketAfterFail = (err: Error) => {
+  return (dispatch: Dispatch, getState: () => IState) => {
+    try {
+      ws.close();
+      dispatch(setError(err));
+      if (retryAttempts < 3) {
+        retryAttempts++;
+        const orderBook = getOrderBook(getState());
+        dispatch(openWebSocketThunk(orderBook?.product_id));
+      }
+    } catch (err) {
+      retryAttempts = 3;
+      dispatch(setError(err));
+    }
+  };
+};
+
+const onWebSocketMessage = (
+  event: MessageEvent<string>,
+  dispatch: Dispatch
+) => {
   const data: IOrderBookWSRS = JSON.parse(event.data);
 
   if (data.numLevels) {

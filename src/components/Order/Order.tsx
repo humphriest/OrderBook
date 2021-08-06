@@ -14,11 +14,11 @@ export const Order = ({
   overallTotal,
   isBid,
 }: {
-  price: number;
-  size: number;
-  total: number;
+  price: number | string;
+  size: number | string;
+  total: number | string;
   overallTotal?: number;
-  isBid: boolean;
+  isBid?: boolean;
 }) => {
   return (
     <MainContainerView>

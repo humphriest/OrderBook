@@ -9,3 +9,5 @@ export const getGroupings = (state: IState) =>
 
 export const getDisplayOrderBook = (state: IState) =>
   state.orderStateReducer.displayOrderBook;
+
+export const getError = (state: IState) => state.orderStateReducer.error;

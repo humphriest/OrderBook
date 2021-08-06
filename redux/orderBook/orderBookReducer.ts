@@ -4,6 +4,7 @@ import {
   UPDATE_ORDER_BOOK,
   SET_GROUPINGS,
   UPDATE_DISPLAY_ORDER_BOOK,
+  SET_ERROR,
 } from "./orderBookActions";
 
 const initialState: IOrderBookState = {
@@ -11,6 +12,7 @@ const initialState: IOrderBookState = {
   selectedGrouping: 0.5,
   groupings: [0.5, 1, 2.5],
   displayOrderBook: undefined,
+  error: undefined,
 };
 
 export const orderBookReducer = (
@@ -34,6 +36,8 @@ export const orderBookReducer = (
       return { ...state, groupings: action.payload };
     case UPDATE_DISPLAY_ORDER_BOOK:
       return { ...state, displayOrderBook: action.payload };
+    case SET_ERROR:
+      return { ...state, error: action.payload };
     default:
       return state;
   }

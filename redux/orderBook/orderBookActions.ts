@@ -5,6 +5,7 @@ export const SET_SELECTED_GROUPING: SET_SELECTED_GROUPING =
 export const SET_GROUPINGS: SET_GROUPINGS = "SET_GROUPINGS";
 export const UPDATE_DISPLAY_ORDER_BOOK: UPDATE_DISPLAY_ORDER_BOOK =
   "UPDATE_DISPLAY_ORDER_BOOK";
+export const SET_ERROR: SET_ERROR = "SET_ERROR";
 
 export const updateOrderBook = (
   orderBookData: IOrderBookWSRS
@@ -29,4 +30,8 @@ export const updateDisplayOrderBook = (
   orderBookData: IUpdatedOrderBookWSRS
 ): IUpdateDisplayOrderBook => {
   return { type: UPDATE_DISPLAY_ORDER_BOOK, payload: orderBookData };
+};
+
+export const setError = (err: Error): ISetError => {
+  return { type: SET_ERROR, payload: err };
 };

@@ -3,6 +3,7 @@ type IOrderBookState = {
   selectedGrouping: number;
   groupings: number[];
   displayOrderBook?: IUpdatedOrderBookWSRS;
+  error?: Error;
 };
 declare interface IState {
   orderStateReducer: IOrderBookState;
