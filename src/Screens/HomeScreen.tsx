@@ -1,25 +1,26 @@
 import React from "react";
 import { MainContainerView } from "./HomeScreen.styles";
-import { openWebSocketThunk } from "../../redux/orderBook/orderBookThunks";
 import { OrderBook } from "../components/OrderBook/OrderBook";
 import { TopBar } from "../components/TopBar/TopBar";
 import { BottomBar } from "../components/BottomBar/BottomBar";
+import { throwWebSocketError } from "../../redux/orderBook/orderBookThunks";
 interface IProps {
-  openWebSocket: () => void;
+  openWebSocket: (productId: string) => void;
   sortByGroupSelect: (value: number) => void;
+  updateWebSocket: () => void;
   orderBook: IUpdatedOrderBookWSRS;
 }
 
 export default class HomeScreen extends React.PureComponent<IProps> {
   componentDidMount() {
-    this.props.openWebSocket();
+    this.props.openWebSocket("PI_XBTUSD");
   }
-  onPressKillFeed = () => {};
-  onPressToggleFeed = () => {};
-  // onSelectGroup = (groupSelect: number) => {
-  //   this.props.sortByGroupSelect(groupSelect);
-  //   console.log(groupSelect);
+  // onPressKillFeed = () => {
+  //   throwWebSocketError();
   // };
+  onPressToggleFeed = () => {
+    this.props.updateWebSocket();
+  };
   // This is going to consist of a TopBar with the group select box in it
   // the middle or main component which will be the order book
   // the bottom bar which will contain the buttons
@@ -28,10 +29,9 @@ export default class HomeScreen extends React.PureComponent<IProps> {
     return (
       <MainContainerView>
         <TopBar setGroupSelect={sortByGroupSelect} />
-        {/* <Text>Open up App.js to start working on your app!</Text>*/}
         <OrderBook orderBookData={orderBook} />
         <BottomBar
-          killFeed={this.onPressKillFeed}
+          killFeed={throwWebSocketError}
           toggleFeed={this.onPressToggleFeed}
         />
       </MainContainerView>

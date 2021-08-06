@@ -1,7 +1,5 @@
 import DropDownPicker from "react-native-dropdown-picker";
-
 import React, { useState } from "react";
-import { Button, Text } from "react-native";
 import {
   ButtonContainerView,
   MainContainerView,
