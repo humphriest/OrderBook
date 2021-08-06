@@ -1,7 +1,6 @@
 import {
   RESET_ORDER_BOOK,
   SET_SELECTED_GROUPING,
-  SET_ORDER_BOOK,
   UPDATE_ORDER_BOOK,
   SET_GROUPINGS,
 } from "./orderBookActions";
@@ -17,7 +16,6 @@ export const orderBookReducer = (
   action: IOrderBookActions
 ) => {
   switch (action.type) {
-    case SET_ORDER_BOOK:
     case UPDATE_ORDER_BOOK: {
       return { ...state, orderBook: action.payload };
     }

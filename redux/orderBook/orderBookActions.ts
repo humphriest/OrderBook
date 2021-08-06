@@ -1,15 +1,8 @@
-export const SET_ORDER_BOOK: SET_ORDER_BOOK = "SET_ORDER_BOOK";
 export const UPDATE_ORDER_BOOK: UPDATE_ORDER_BOOK = "UPDATE_ORDER_BOOK";
 export const RESET_ORDER_BOOK: RESET_ORDER_BOOK = "RESET_ORDER_BOOK";
 export const SET_SELECTED_GROUPING: SET_SELECTED_GROUPING =
   "SET_SELECTED_GROUPING";
 export const SET_GROUPINGS: SET_GROUPINGS = "SET_GROUPINGS";
-
-export const setOrderBook = (
-  orderBookData: IUpdatedOrderBookWSRS
-): ISetOrderBook => {
-  return { type: SET_ORDER_BOOK, payload: orderBookData };
-};
 
 export const updateOrderBook = (
   orderBookData: IUpdatedOrderBookWSRS

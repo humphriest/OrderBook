@@ -1,7 +1,7 @@
 import {
   resetOrderBook,
   setGroupings,
-  setOrderBook,
+  setSelectedGrouping,
   updateOrderBook,
 } from "./orderBookActions";
 import { getGroupSelect, getOrderBook } from "./orderBookSelectors";
@@ -42,13 +42,13 @@ let onWebSocketMessage = (event: MessageEvent<string>, dispatch: Dispatch) => {
       leading: true,
       trailing: false,
     });
-    // const updatedOrderBookData = calculateAndReturnTotal(data);
+
     const updatedOrderBookData = dispatch(sortByGroupSelectThunk(data));
-    dispatch(setOrderBook(updatedOrderBookData));
+    dispatch(updateOrderBook(updatedOrderBookData));
   } else {
     const extendedOrderBook = dispatch(updateOrderDataWithNewData(data));
     const sortedOrderBook = dispatch(sortByGroupSelectThunk(extendedOrderBook));
-    dispatch(setOrderBook(sortedOrderBook));
+    dispatch(updateOrderBook(sortedOrderBook));
   }
 };
 
@@ -67,58 +67,41 @@ let updateOrderDataWithNewData = (newData: IOrderBookWSRS) => {
     const orderBook = getOrderBook(getState());
     let updatedOrderBook = { ...orderBook };
 
+    const updatedAsks = filterOutAndRemoveOrders(newData.asks, orderBook?.asks);
+    const updatedBids = filterOutAndRemoveOrders(newData.bids, orderBook?.bids);
     // total isn't updated
-    newData.asks?.forEach((ask) => {
-      const item = updatedOrderBook.asks?.find(
-        (previousAsk) => previousAsk[0] === ask[0]
-      );
-
-      if (!!item) {
-        const indexOfItem = updatedOrderBook.asks?.indexOf(item);
-        if (!indexOfItem) return;
-
-        if (ask?.[1] === 0)
-          indexOfItem && updatedOrderBook.asks?.splice(indexOfItem, 1);
-        else if (updatedOrderBook.asks)
-          updatedOrderBook.asks[indexOfItem] = ask;
-        return;
-      }
-
-      if (
-        updatedOrderBook?.asks &&
-        updatedOrderBook?.asks?.length < 25 &&
-        ask[1] !== 0
-      ) {
-        updatedOrderBook?.asks?.push(ask);
-      }
-    });
-
-    newData.bids?.forEach((bid, i) => {
-      const item = updatedOrderBook.bids?.find(
-        (previousBid) => previousBid[0] === bid[0]
-      );
-
-      if (!!item) {
-        const indexOfItem = updatedOrderBook.bids?.indexOf(item);
-        if (!indexOfItem) return;
-
-        if (bid?.[1] === 0)
-          indexOfItem && updatedOrderBook.bids?.splice(indexOfItem, 1);
-        else if (updatedOrderBook.bids)
-          updatedOrderBook.bids[indexOfItem] = bid;
-        return;
-      }
-      if (
-        updatedOrderBook?.bids &&
-        updatedOrderBook?.bids?.length < 25 &&
-        bid[1] !== 0
-      )
-        updatedOrderBook?.bids?.push(bid);
-    });
-    // console.log(updatedOrderBook);
-    // dispatch(updateOrderBook(updatedOrderBook));
-    return updatedOrderBook;
+    console.log({ ...updatedOrderBook, asks: updatedAsks, bids: updatedBids });
+    return {
+      ...updatedOrderBook,
+      asks: updatedAsks,
+      bids: updatedBids,
+    };
   };
+};
+
+const filterOutAndRemoveOrders = (
+  incomingArr?: IOrder[],
+  updatedArr: IOrder[] = []
+) => {
+  let arrToReturn = [...updatedArr];
+  incomingArr?.forEach((incomingArrItem, i) => {
+    const item = arrToReturn?.find(
+      (previousBid) => previousBid[0] === incomingArrItem[0]
+    );
+    if (!!item) {
+      const indexOfItem = arrToReturn?.indexOf(item);
+      if (!indexOfItem) return;
+
+      if (incomingArrItem?.[1] === 0)
+        indexOfItem && arrToReturn?.splice(indexOfItem, 1);
+      else arrToReturn[indexOfItem] = incomingArrItem;
+
+      return;
+    }
+    if (arrToReturn?.length < 25 && incomingArrItem[1] !== 0)
+      arrToReturn?.push(incomingArrItem);
+  });
+  return arrToReturn;
 };
 
 export const sortByGroupSelectThunk = (incomingOrderBook: IOrderBookWSRS) => {
@@ -137,7 +120,6 @@ export const sortByGroupSelectThunk = (incomingOrderBook: IOrderBookWSRS) => {
       asks: sortedAsksByValue,
       bids: sortedBidsByValue,
     };
-    console.log(bodyToReturn);
     return bodyToReturn;
   };
 };
@@ -146,15 +128,12 @@ const sortByGroupSelect = (value: number, orders: IOrder[] = []): IOrder[] => {
   let updatedOrderBook = [...orders];
   for (let i = 0; i < updatedOrderBook.length; i++) {
     const selectedValuePrice = updatedOrderBook[i][0];
-
-    // debugger;
-    // console.log(selectedValuePrice % value);
-
     const remainder = selectedValuePrice % value;
-    console.log("remainder: " + remainder);
+
+    // console.log("remainder: " + remainder);
     if (remainder) {
       const valueWithoutRemainder = selectedValuePrice - remainder;
-      console.log("valueWithoutRemainder: " + valueWithoutRemainder);
+      // console.log("valueWithoutRemainder: " + valueWithoutRemainder);
       const matchedOrderBook = updatedOrderBook.find(
         (valueArrs) => valueArrs[0] === valueWithoutRemainder
       );
@@ -187,12 +166,14 @@ export const updateWebSocketThunk = () => {
 
     if (newProductId === "PI_XBTUSD") {
       dispatch(setGroupings([0.5, 1, 2.5]));
+      dispatch(setSelectedGrouping(0.5));
     } else if (newProductId === "PI_ETHUSD") {
       dispatch(setGroupings([0.05, 0.1, 0.25]));
+      dispatch(setSelectedGrouping(0.05));
     }
   };
 };
 
 export const throwWebSocketError = () => {
-  ws.send(JSON.stringify({ issue: "throw an error" }));
+  sendEventToWebSocket("hbrefiu", "wefkuyv");
 };
